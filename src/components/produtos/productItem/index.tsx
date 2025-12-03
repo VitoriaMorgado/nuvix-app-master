@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons"; // Importando ícones para o Rating
+import React from "react";
 
 // Componente para a Tag (Ação, Estratégia, etc.)
 const TagItem = ({ text }: { text: string }) => (

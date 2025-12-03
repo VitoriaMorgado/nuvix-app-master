@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ImageBackground,
   StyleSheet,
@@ -6,27 +6,60 @@ import {
   View,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
+import Input from "@/src/components/input";
+import { makeCadastro } from "../../models/services/cadastro/post";
 
-export default function Cadastrar() {
+export default async function Cadastrar() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confSenha, setConfSenha] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleCadastro = () => {
-    if (senha !== confSenha) {
-      alert("As senhas não coincidem!");
+  const handleCadastro = async () => {
+    if (!email || !senha || !nome || !confSenha) {
+      Alert.alert("Erro", "Por favor, preencha todos os campos");
       return;
     }
-    console.log("Nome:", nome);
-    console.log("Email:", email);
-    console.log("Senha:", senha);
-    alert("Cadastro realizado com sucesso!");
-    router.push("/login"); // depois de cadastrar, volta pro login
+
+    if (senha !== confSenha) {
+      Alert.alert("Erro", "As senhas não coincidem!");
+      return;
+    }
+    setIsLoading(true);
+
+    try {
+      const data = await makeCadastro({ name: nome, email, password: senha });
+      Alert.alert("Sucesso", "Cadastro realizado com sucesso!");
+      router.push("./login");
+    } catch (error: any) {
+      console.log("Erro no cadastro => ", error);
+      const errorMessage =
+        error?.response?.data?.message || // Caso use Axios
+        error?.message || // Caso seja um erro simples
+        "Erro ao cadastrar. Verifique os dados e tente novamente."; // Fallback
+
+      Alert.alert("Erro", errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+
+    useEffect(() => {
+      if (!confSenha) return; // se o campo estiver vazio, não faz nada
+
+      const timer = setTimeout(() => {
+        if (senha !== confSenha) {
+          Alert.alert("Erro", "As senhas não coincidem");
+        }
+      }, 1000); //esperar até que o usuário termine de digitar
+
+      return () => clearTimeout(timer);
+    }, [senha, confSenha]); // só roda quando password OU confirmPassword mudarem
   };
 
   return (
@@ -45,25 +78,26 @@ export default function Cadastrar() {
       {/* Formulário */}
       <View style={styles.form}>
         <Text style={styles.label}>Nome</Text>
-        <TextInput
+        <Input
           style={styles.input}
           placeholder="Seu Nome"
           placeholderTextColor="#ffffff59"
           value={nome}
-          onChangeText={setNome}
+          onChangeText={(text) => setNome(text)}
         />
 
         <Text style={styles.label}>Email</Text>
-        <TextInput
+        <Input
           style={styles.input}
           placeholder="email@email.com"
           placeholderTextColor="#ffffff59"
           value={email}
+          keyboardType="email-address"
           onChangeText={setEmail}
         />
 
         <Text style={styles.label}>Senha</Text>
-        <TextInput
+        <Input
           style={styles.input}
           placeholder="********"
           placeholderTextColor="#ffffff59"
@@ -73,7 +107,7 @@ export default function Cadastrar() {
         />
 
         <Text style={styles.label}>Confirmar Senha</Text>
-        <TextInput
+        <Input
           style={styles.input}
           placeholder="********"
           placeholderTextColor="#ffffff59"
@@ -85,6 +119,7 @@ export default function Cadastrar() {
         {/* BOTÃO CADASTRAR */}
         <TouchableOpacity
           onPress={handleCadastro}
+          disabled={isLoading}
           style={{ borderRadius: 40, overflow: "hidden", marginTop: 10 }}
         >
           <LinearGradient
@@ -93,7 +128,9 @@ export default function Cadastrar() {
             end={{ x: 1, y: 0 }}
             style={styles.button}
           >
-            <Text style={styles.buttonText}>Criar Conta</Text>
+            <Text style={styles.buttonText}>
+              {isLoading ? "Carregando..." : "Criar Conta"}
+            </Text>
           </LinearGradient>
         </TouchableOpacity>
 
@@ -102,12 +139,9 @@ export default function Cadastrar() {
         {/* TEXTO VOLTAR AO LOGIN */}
         <Text style={styles.registerText}>
           Já tem uma conta?{" "}
-          <Text
-            style={styles.registerLink}
-            onPress={() => router.push("/login")}
-          >
-            Entrar
-          </Text>
+          <TouchableOpacity onPress={() => router.push("/login")}>
+            <Text style={styles.registerLink}>Entrar</Text>
+          </TouchableOpacity>
         </Text>
 
         <Text style={styles.googleform}>Cadastrar de outra forma</Text>
