@@ -43,82 +43,91 @@ export default function Conta() {
     value?: string;
   };
 
-const sections: { title: string; items: SectionItem[] }[] = [
+  const sections: { title: string; items: SectionItem[] }[] = [
     {
-        title: "Dados Pessoais",
-        items: [
-            { label: "Nome completo", value: userData.fullName },
-            { label: "Email", value: userData.email },
-            { label: "Número de telefone", value: userData.phone },
-            { label: "Data de nascimento", value: userData.birthDate },
-        ],
+      title: "Dados Pessoais",
+      items: [
+        { label: "Nome completo", value: userData.fullName },
+        { label: "Email", value: userData.email },
+        { label: "Número de telefone", value: userData.phone },
+        { label: "Data de nascimento", value: userData.birthDate },
+      ],
     },
     {
-        title: "Segurança",
-        items: [
-            { label: "Alterar senha", value: undefined },
-            { label: "Configurações de autenticação", value: undefined },
-            { label: "Perguntas de segurança", value: undefined },
-        ],
+      title: "Segurança",
+      items: [
+        { label: "Alterar senha", value: undefined },
+        { label: "Configurações de autenticação", value: undefined },
+        { label: "Perguntas de segurança", value: undefined },
+      ],
     },
     {
-        title: "Preferências",
-        items: [
-            { label: "Idioma", value: userData.language },
-            { label: "Notificações", value: userData.notifications ? "Ativas" : "Desativadas" },
-            { label: "Privacidade", value: userData.privacy },
-        ],
+      title: "Preferências",
+      items: [
+        { label: "Idioma", value: userData.language },
+        {
+          label: "Notificações",
+          value: userData.notifications ? "Ativas" : "Desativadas",
+        },
+        { label: "Privacidade", value: userData.privacy },
+      ],
     },
     {
-        title: "Assinaturas e Pagamentos",
-        items: [
-            { label: "Cartões cadastrados", value: userData.cards.join(", ") },
-            { label: "Histórico de compras", value: userData.purchaseHistory.join(", ") },
-            { label: "Planos ativos", value: userData.activePlans.join(", ") },
-        ],
+      title: "Assinaturas e Pagamentos",
+      items: [
+        { label: "Cartões cadastrados", value: userData.cards.join(", ") },
+        {
+          label: "Histórico de compras",
+          value: userData.purchaseHistory.join(", "),
+        },
+        { label: "Planos ativos", value: userData.activePlans.join(", ") },
+      ],
     },
     {
-        title: "Opções de Gerenciamento",
-        items: [
-            { label: "Editar perfil", value: undefined },
-            { label: "Desativar ou excluir conta", value: undefined },
-            { label: "Conectar ou desconectar de redes sociais", value: undefined },
-        ],
+      title: "Opções de Gerenciamento",
+      items: [
+        { label: "Editar perfil", value: undefined },
+        { label: "Desativar ou excluir conta", value: undefined },
+        { label: "Conectar ou desconectar de redes sociais", value: undefined },
+      ],
     },
-];
+  ];
 
-// Adicione navegação nas opções que alteram a página
-const handleSectionItemPress = (label: string) => {
+  // Adicione navegação nas opções que alteram a página
+  const handleSectionItemPress = (label: string) => {
     switch (label) {
-        case "Alterar senha":
-            router.push("/conta/alterar-senha" as any);
-            break;
-        case "Configurações de autenticação":
-            router.push("/conta/autenticacao" as any);
-            break;
-        case "Perguntas de segurança":
-            router.push("/conta/perguntas-seguranca" as any);
-            break;
-        case "Editar perfil":
-            router.push("/conta/editar-perfil" as any);
-            break;
-        case "Desativar ou excluir conta":
-            router.push("/conta/desativar-excluir" as any);
-            break;
-        case "Conectar ou desconectar de redes sociais":
-            router.push("/conta/redes-sociais" as any);
-            break;
-        default:
-            break;
+      case "Alterar senha":
+        router.push("/conta/alterar-senha" as any);
+        break;
+      case "Configurações de autenticação":
+        router.push("/conta/autenticacao" as any);
+        break;
+      case "Perguntas de segurança":
+        router.push("/conta/perguntas-seguranca" as any);
+        break;
+      case "Editar perfil":
+        router.push("/conta/editar-perfil" as any);
+        break;
+      case "Desativar ou excluir conta":
+        router.push("/conta/desativar-excluir" as any);
+        break;
+      case "Conectar ou desconectar de redes sociais":
+        router.push("/conta/redes-sociais" as any);
+        break;
+      default:
+        break;
     }
-};
+  };
 
   return (
     <ImageBackground
       source={require("@/assets/images/wallpaper-base.png")}
       style={styles.background}
     >
-      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 60 }}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{ paddingBottom: 60 }}
+      >
         {/* Cabeçalho */}
         <View style={styles.header}>
           <TouchableOpacity
@@ -150,7 +159,9 @@ const handleSectionItemPress = (label: string) => {
               <View key={iIdx} style={styles.option}>
                 <View style={styles.textContainer}>
                   <Text style={styles.label}>{item.label}</Text>
-                  {item.value && <Text style={styles.description}>{item.value}</Text>}
+                  {item.value && (
+                    <Text style={styles.description}>{item.value}</Text>
+                  )}
                 </View>
               </View>
             ))}

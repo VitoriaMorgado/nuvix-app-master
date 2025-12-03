@@ -33,7 +33,7 @@ export default function Login() {
     try {
       setIsLoading(true);
 
-      const data = await makeLogin({ email, password: senha });
+      const data = await makeLogin({ email, senha });
       // login com contexto
       await login(data.usuario);
 

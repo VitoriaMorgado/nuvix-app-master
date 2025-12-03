@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
   TouchableOpacity,
   Alert,
 } from "react-native";
@@ -14,15 +13,28 @@ import { router } from "expo-router";
 import Input from "@/src/components/input";
 import { makeCadastro } from "../../models/services/cadastro/post";
 
-export default async function Cadastrar() {
+export default function Cadastrar() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confSenha, setConfSenha] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Validação das senhas em tempo real
+  useEffect(() => {
+    if (!confSenha || confSenha === senha) return;
+
+    const timer = setTimeout(() => {
+      if (senha !== confSenha) {
+        Alert.alert("Erro", "As senhas não coincidem");
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [senha, confSenha]);
+
   const handleCadastro = async () => {
-    if (!email || !senha || !nome || !confSenha) {
+    if (!nome || !email || !senha || !confSenha) {
       Alert.alert("Erro", "Por favor, preencha todos os campos");
       return;
     }
@@ -31,35 +43,29 @@ export default async function Cadastrar() {
       Alert.alert("Erro", "As senhas não coincidem!");
       return;
     }
+
     setIsLoading(true);
 
     try {
-      const data = await makeCadastro({ name: nome, email, password: senha });
+      const data = await makeCadastro({
+        nome: nome,
+        email,
+        senha: senha,
+      });
+
       Alert.alert("Sucesso", "Cadastro realizado com sucesso!");
       router.push("./login");
     } catch (error: any) {
       console.log("Erro no cadastro => ", error);
       const errorMessage =
-        error?.response?.data?.message || // Caso use Axios
-        error?.message || // Caso seja um erro simples
-        "Erro ao cadastrar. Verifique os dados e tente novamente."; // Fallback
+        error?.response?.data?.message ||
+        error?.message ||
+        "Erro ao cadastrar. Verifique os dados e tente novamente.";
 
       Alert.alert("Erro", errorMessage);
     } finally {
       setIsLoading(false);
     }
-
-    useEffect(() => {
-      if (!confSenha) return; // se o campo estiver vazio, não faz nada
-
-      const timer = setTimeout(() => {
-        if (senha !== confSenha) {
-          Alert.alert("Erro", "As senhas não coincidem");
-        }
-      }, 1000); //esperar até que o usuário termine de digitar
-
-      return () => clearTimeout(timer);
-    }, [senha, confSenha]); // só roda quando password OU confirmPassword mudarem
   };
 
   return (

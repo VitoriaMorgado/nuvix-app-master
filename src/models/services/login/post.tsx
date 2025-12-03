@@ -2,13 +2,13 @@ import { AUTH_TOKEN, BASE_URL } from "../../../app/config/api";
 
 export async function makeLogin({
   email,
-  password,
+  senha,
 }: {
   email: string;
-  password: string;
+  senha: string;
 }) {
   try {
-    const res = await fetch(`${BASE_URL}/login/index.php`, {
+    const res = await fetch(`${BASE_URL}/login/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -16,7 +16,7 @@ export async function makeLogin({
       },
       body: JSON.stringify({
         email,
-        password,
+        senha,
       }),
     });
 
