@@ -7,44 +7,45 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-  Platform,
-  KeyboardAvoidingView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { useAuth } from "../context/AuthContext";
-import { makeLogin } from "@/src/models/services/login/post";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [lembrar, setLembrar] = useState(false);
-  const { login } = useAuth();
+
+  // Carregar email salvo ao abrir
+  useEffect(() => {
+    const carregarEmail = async () => {
+      try {
+        const emailSalvo = await AsyncStorage.getItem("email");
+        if (emailSalvo) {
+          setEmail(emailSalvo);
+          setLembrar(true);
+        }
+      } catch (error) {
+        console.log("Erro ao carregar email:", error);
+      }
+    };
+    carregarEmail();
+  }, []);
 
   const handleLogin = async () => {
-    if (!email || !senha) {
-      Alert.alert("Erro", "Por favor, preencha todos os campos.");
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-
-      const data = await makeLogin({ email, senha });
-      // login com contexto
-      await login(data.usuario);
-
-      await AsyncStorage.setItem("token", data?.token || "TOKEN_FAKE");
-      if (data.status === "success") {
-        router.push("/(tabs)/home");
+    if (email === "usuario@usuario.com" && senha === "1234") {
+      if (lembrar) {
+        await AsyncStorage.setItem("email", email); // SALVA O EMAIL
+      } else {
+        await AsyncStorage.removeItem("email"); //REMOVE O EMAIL DO LEMBRAR
       }
-    } catch (err) {
-      Alert.alert("Erro", "Email ou senha incorretos.");
-    } finally {
-      setIsLoading(false);
+
+      // ação ao logar (vai para home)
+      router.push("./(tabs)/home");
+    } else {
+      Alert.alert("Erro", "Email ou senha incorretos!");
     }
   };
 
@@ -53,10 +54,6 @@ export default function Login() {
       source={require("@/assets/images/wallpaper_login.png")}
       style={styles.background}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      ></KeyboardAvoidingView>
-
       {/* Letras */}
       <View style={styles.container}>
         <Text style={styles.title}>
@@ -72,7 +69,6 @@ export default function Login() {
           style={styles.input}
           placeholder="Email@Email.com"
           placeholderTextColor="#ffffff59"
-          keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
         />
@@ -107,7 +103,6 @@ export default function Login() {
         {/* BOTÃO ENTRAR */}
         <TouchableOpacity
           onPress={handleLogin}
-          disabled={isLoading}
           style={{ borderRadius: 40, overflow: "hidden", marginTop: 10 }}
         >
           <LinearGradient
@@ -116,9 +111,7 @@ export default function Login() {
             end={{ x: 1, y: 0 }}
             style={styles.button}
           >
-            <Text style={styles.buttonText}>
-              {isLoading ? "Carregando..." : "Iniciar Sessão"}
-            </Text>
+            <Text style={styles.buttonText}>Iniciar Sessão</Text>
           </LinearGradient>
         </TouchableOpacity>
 
